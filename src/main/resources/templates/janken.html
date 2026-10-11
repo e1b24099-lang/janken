@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Janken</title>
+</head>
+
+<body>
+  <h1>Janken GAME!</h1>
+  <!-- username が登録されているとき(index.htmlから来たとき)だけ表示する -->
+  <p th:if="${username}">Hi [[${username}]]</p>
+</body>
+
+</html>
