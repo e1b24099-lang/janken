@@ -13,7 +13,8 @@
   <a href="/jankengame?hand=Choki">ちょき</a>
   <a href="/jankengame?hand=Pa">ぱー</a>
 
-  <p th:if="${cpuHand}">CPUの手 [[${cpuHand}]] </p>
+  <p th:if="${myHand}">あなたの手 [[${myHand}]] </p>
+  <p th:if="${cpuHand}">相手の手 [[${cpuHand}]] </p>
   <p th:if="${result}">結果 [[${result}]] </p>
 </body>
 
