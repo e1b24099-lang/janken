@@ -8,8 +8,13 @@
 
 <body>
   <h1>Janken GAME!</h1>
-  <!-- username が登録されているとき(index.htmlから来たとき)だけ表示する -->
   <p th:if="${username}">Hi [[${username}]]</p>
+  <a href="/jankengame?hand=Gu">ぐー</a>
+  <a href="/jankengame?hand=Choki">ちょき</a>
+  <a href="/jankengame?hand=Pa">ぱー</a>
+
+  <p th:if="${cpuHand}">CPUの手 [[${cpuHand}]] </p>
+  <p th:if="${result}">結果 [[${result}]] </p>
 </body>
 
 </html>
