@@ -5,6 +5,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import oit.is.z3252.kaizi.janken.model.Janken;
 
 @Controller
 public class JankenController {
@@ -19,6 +20,16 @@ public class JankenController {
   @PostMapping("/janken")
   public String jankenEntry(@RequestParam String username, ModelMap model) {
     model.addAttribute("username", username);
+    return "janken.html";
+  }
+
+  @GetMapping("/jankengame")
+  public String jankenGame(@RequestParam String hand, ModelMap model) {
+    Janken janken = new Janken(hand);
+    model.addAttribute("myHand", hand);
+    model.addAttribute("cpuHand", janken.getCpuHand());
+    model.addAttribute("result", janken.judge());
+
     return "janken.html";
   }
 }
