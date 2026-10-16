@@ -35,9 +35,9 @@ public class JankenAuthConfiguration {
   public InMemoryUserDetailsManager userDetailsService() {
     // パスワードはどちらも isdev を bcrypt でハッシュ化したもの
     UserDetails user1 = User.withUsername("user1")
-        .password("{bcrypt}BCRYPT_HASH_OF_ISDEV").roles("USER").build();
+        .password("{bcrypt}$2a$10$clV3mxZ0YkJ5JtaGBOZGFOssv3UXFd/XixXNHbz4eP7HZ/cM5p/0.").roles("USER").build();
     UserDetails user2 = User.withUsername("user2")
-        .password("{bcrypt}BCRYPT_HASH_OF_ISDEV").roles("USER").build();
+        .password("{bcrypt}$2a$10$clV3mxZ0YkJ5JtaGBOZGFOssv3UXFd/XixXNHbz4eP7HZ/cM5p/0.").roles("USER").build();
 
     return new InMemoryUserDetailsManager(user1, user2);
   }
