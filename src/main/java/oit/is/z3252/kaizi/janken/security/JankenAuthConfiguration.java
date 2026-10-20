@@ -24,7 +24,13 @@ public class JankenAuthConfiguration {
             .logoutSuccessUrl("/")) // ログアウト後に / にリダイレクト
         .authorizeHttpRequests(authz -> authz
             .requestMatchers("/janken*/**").authenticated() // /janken で始まるURLは認証済みであること
-            .anyRequest().permitAll()); // 上記以外は全員アクセス可能
+            .anyRequest().permitAll()) // 上記以外は全員アクセス可能
+        // h2-console 用：CSRF チェックを外す
+        .csrf(csrf -> csrf
+            .ignoringRequestMatchers("/h2-console/**"))
+        // h2-console 用：同じサイト内の iframe 表示を許可
+        .headers(headers -> headers
+            .frameOptions(frameOptions -> frameOptions.sameOrigin()));
     return http.build();
   }
 
