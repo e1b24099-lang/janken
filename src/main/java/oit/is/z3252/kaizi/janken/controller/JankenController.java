@@ -66,11 +66,36 @@ public class JankenController {
     return "janken.html";
   }
 
+  // エントリーのユーザ名をクリックしたときに，対戦相手を表示する
   @GetMapping("/match")
   public String match(@RequestParam int id, Principal prin, ModelMap model) {
     User cpu = userMapper.selectById(id); // URL の ?id= の値で相手を取得
     model.addAttribute("loginUser", prin.getName());
     model.addAttribute("cpu", cpu);
+    return "match.html";
+  }
+
+  // じゃんけんの手をクリックしたときに，試合を行って結果を DB に登録する
+  @GetMapping("/fight")
+  public String fight(@RequestParam int id, @RequestParam String hand, Principal prin, ModelMap model) {
+    User me = userMapper.selectByName(prin.getName()); // 自分（ログインユーザ）
+    User cpu = userMapper.selectById(id); // 相手（CPU）
+    Janken janken = new Janken(hand); // じゃんけんの判定（CPU の手は固定）
+
+    // 試合結果を matches テーブルに登録する
+    Match match = new Match();
+    match.setUser1(me.getId());
+    match.setUser2(cpu.getId());
+    match.setUser1Hand(hand);
+    match.setUser2Hand(janken.getCpuHand());
+    matchMapper.insertMatch(match);
+
+    // 画面に表示する値を渡す
+    model.addAttribute("loginUser", prin.getName());
+    model.addAttribute("cpu", cpu);
+    model.addAttribute("myHand", hand);
+    model.addAttribute("cpuHand", janken.getCpuHand());
+    model.addAttribute("result", janken.judge());
     return "match.html";
   }
 }
