@@ -65,4 +65,12 @@ public class JankenController {
     model.addAttribute("matches", matches);
     return "janken.html";
   }
+
+  @GetMapping("/match")
+  public String match(@RequestParam int id, Principal prin, ModelMap model) {
+    User cpu = userMapper.selectById(id); // URL の ?id= の値で相手を取得
+    model.addAttribute("loginUser", prin.getName());
+    model.addAttribute("cpu", cpu);
+    return "match.html";
+  }
 }

@@ -24,6 +24,7 @@ public class JankenAuthConfiguration {
             .logoutSuccessUrl("/")) // ログアウト後に / にリダイレクト
         .authorizeHttpRequests(authz -> authz
             .requestMatchers("/janken*/**").authenticated() // /janken で始まるURLは認証済みであること
+            .requestMatchers("/match/**", "/fight/**").authenticated() // 対戦画面も認証済みであること
             .anyRequest().permitAll()) // 上記以外は全員アクセス可能
         // h2-console 用：CSRF チェックを外す
         .csrf(csrf -> csrf
