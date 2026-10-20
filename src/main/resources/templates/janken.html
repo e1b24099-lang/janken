@@ -9,13 +9,13 @@
 <body>
   <a href="/logout">ログアウト</a>
   <h1>Janken GAME!</h1>
-  <div th:if="${entry}">
-    <h2>エントリー</h2>
-    <ul>
-      <li th:each="user : ${entry.users}">[[${user}]]</li>
-    </ul>
-  </div>
   <p th:if="${username}">Hi [[${username}]]</p>
+
+  <h2>エントリー</h2>
+  <ul>
+    <li th:each="user : ${users}">[[${user.name}]]</li>
+  </ul>
+
   <a href="/jankengame?hand=Gu">ぐー</a>
   <a href="/jankengame?hand=Choki">ちょき</a>
   <a href="/jankengame?hand=Pa">ぱー</a>
