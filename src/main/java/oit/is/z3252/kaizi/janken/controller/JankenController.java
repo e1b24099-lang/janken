@@ -92,8 +92,33 @@ public class JankenController {
     User me = userMapper.selectByName(prin.getName()); // 自分（ログインユーザ）
     User cpu = userMapper.selectById(id); // 選んだ相手
 
-    // 相手が人間のときは matchinfo に登録して wait.html で相手の手を待つ
+    // 相手が人間のとき
     if (!cpu.getName().equals("CPU")) {
+      // 相手が先に自分を対戦相手に選んで待っているか調べる
+      MatchInfo waiting = matchInfoMapper.selectActiveByUsers(cpu.getId(), me.getId());
+
+      if (waiting != null) {
+        // 相手が待っている → 試合成立。matches に結果を保存する
+        Match match = new Match();
+        match.setUser1(waiting.getUser1()); // 先手（相手）のID
+        match.setUser2(me.getId()); // 後手（自分）のID
+        match.setUser1Hand(waiting.getUser1Hand()); // 先手の手
+        match.setUser2Hand(hand); // 後手の手
+        match.setIsActive(true); // まだ先手に結果を表示していない
+        matchMapper.insertMatch(match);
+
+        // 待機状態を解除する
+        matchInfoMapper.updateInactive(waiting.getId());
+
+        // 後手には match.html でお互いの手を表示する
+        model.addAttribute("loginUser", prin.getName());
+        model.addAttribute("cpu", cpu);
+        model.addAttribute("myHand", hand);
+        model.addAttribute("cpuHand", waiting.getUser1Hand());
+        return "match.html";
+      }
+
+      // 待っている相手がいない → 自分が先手。matchinfo に登録して wait.html で相手の手を待つ
       MatchInfo info = new MatchInfo();
       info.setUser1(me.getId());
       info.setUser2(cpu.getId());
