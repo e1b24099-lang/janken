@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import oit.is.z3252.kaizi.janken.model.Entry;
 import oit.is.z3252.kaizi.janken.model.Janken;
 import oit.is.z3252.kaizi.janken.model.Match;
+import oit.is.z3252.kaizi.janken.model.MatchInfo;
+import oit.is.z3252.kaizi.janken.model.MatchInfoMapper;
 import oit.is.z3252.kaizi.janken.model.MatchMapper;
 import oit.is.z3252.kaizi.janken.model.User;
 import oit.is.z3252.kaizi.janken.model.UserMapper;
@@ -31,6 +33,10 @@ public class JankenController {
   @Autowired
   MatchMapper matchMapper;
 
+  // DB の matchinfo テーブルを操作する Mapper（DI で受け取る）
+  @Autowired
+  MatchInfoMapper matchInfoMapper;
+
   // ログインユーザ名と，DB に登録されているユーザ一覧・試合結果一覧を表示する
   @GetMapping("/janken")
   public String janken(Principal prin, ModelMap model) {
@@ -46,6 +52,10 @@ public class JankenController {
     // DB から試合結果一覧を取得して画面に渡す
     ArrayList<Match> matches = matchMapper.selectAllMatches();
     model.addAttribute("matches", matches);
+
+    // アクティブな試合（相手の手を待っている試合）を画面に渡す
+    ArrayList<MatchInfo> activeMatches = matchInfoMapper.selectActiveMatchInfo();
+    model.addAttribute("activeMatches", activeMatches);
     return "janken.html";
   }
 
@@ -75,11 +85,27 @@ public class JankenController {
     return "match.html";
   }
 
-  // じゃんけんの手をクリックしたときに，試合を行って結果を DB に登録する
+  // じゃんけんの手をクリックしたとき
+  // 相手が CPU ならその場で試合を行い，人間なら matchinfo に登録して相手の手を待つ
   @GetMapping("/fight")
   public String fight(@RequestParam int id, @RequestParam String hand, Principal prin, ModelMap model) {
     User me = userMapper.selectByName(prin.getName()); // 自分（ログインユーザ）
-    User cpu = userMapper.selectById(id); // 相手（CPU）
+    User cpu = userMapper.selectById(id); // 選んだ相手
+
+    // 相手が人間のときは matchinfo に登録して wait.html で相手の手を待つ
+    if (!cpu.getName().equals("CPU")) {
+      MatchInfo info = new MatchInfo();
+      info.setUser1(me.getId());
+      info.setUser2(cpu.getId());
+      info.setUser1Hand(hand);
+      info.setIsActive(true);
+      matchInfoMapper.insertMatchInfo(info);
+
+      model.addAttribute("username", prin.getName());
+      return "wait.html";
+    }
+
+    // 以下は相手が CPU のとき（今までどおり）
     Janken janken = new Janken(hand); // じゃんけんの判定（CPU の手は固定）
 
     // 試合結果を matches テーブルに登録する
