@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface MatchInfoMapper {
@@ -18,4 +20,12 @@ public interface MatchInfoMapper {
   // isActive が TRUE（アクティブな試合）をすべて取得する
   @Select("SELECT * FROM matchinfo WHERE isActive = TRUE")
   ArrayList<MatchInfo> selectActiveMatchInfo();
+
+  // 相手(user1)が自分(user2)を対戦相手に選んで待っているアクティブな試合を1件取得する
+  @Select("SELECT * FROM matchinfo WHERE isActive = TRUE AND user1 = #{user1} AND user2 = #{user2} LIMIT 1")
+  MatchInfo selectActiveByUsers(@Param("user1") int user1, @Param("user2") int user2);
+
+  // 試合が成立したので待機状態を解除する（isActive を FALSE にする）
+  @Update("UPDATE matchinfo SET isActive = FALSE WHERE id = #{id}")
+  void updateInactive(int id);
 }
