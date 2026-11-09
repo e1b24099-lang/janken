@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import oit.is.z3252.kaizi.janken.model.Entry;
 import oit.is.z3252.kaizi.janken.model.Janken;
@@ -17,6 +18,7 @@ import oit.is.z3252.kaizi.janken.model.MatchInfoMapper;
 import oit.is.z3252.kaizi.janken.model.MatchMapper;
 import oit.is.z3252.kaizi.janken.model.User;
 import oit.is.z3252.kaizi.janken.model.UserMapper;
+import oit.is.z3252.kaizi.janken.service.AsyncKekka;
 
 @Controller
 public class JankenController {
@@ -36,6 +38,18 @@ public class JankenController {
   // DB の matchinfo テーブルを操作する Mapper（DI で受け取る）
   @Autowired
   MatchInfoMapper matchInfoMapper;
+
+  // 試合結果の保存と非同期表示を行うサービス（DI で受け取る）
+  @Autowired
+  AsyncKekka kekka;
+
+  // wait.html の EventSource から呼ばれ，試合結果が出たら SSE で送る
+  @GetMapping("/result")
+  public SseEmitter result() {
+    SseEmitter emitter = new SseEmitter();
+    this.kekka.asyncShowResult(emitter);
+    return emitter;
+  }
 
   // ログインユーザ名と，DB に登録されているユーザ一覧・試合結果一覧を表示する
   @GetMapping("/janken")
@@ -105,10 +119,9 @@ public class JankenController {
         match.setUser1Hand(waiting.getUser1Hand()); // 先手の手
         match.setUser2Hand(hand); // 後手の手
         match.setIsActive(true); // まだ先手に結果を表示していない
-        matchMapper.insertMatch(match);
 
-        // 待機状態を解除する
-        matchInfoMapper.updateInactive(waiting.getId());
+        // matches への保存と待機状態の解除を AsyncKekka で行い，待っている先手の画面に知らせる
+        kekka.syncSaveMatch(match, waiting.getId());
 
         // 後手には match.html でお互いの手を表示する
         model.addAttribute("loginUser", prin.getName());
