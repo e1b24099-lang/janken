@@ -47,4 +47,14 @@ public class Match {
   public void setUser2Hand(String user2Hand) {
     this.user2Hand = user2Hand;
   }
+
+  boolean isActive;
+
+  public boolean getIsActive() {
+    return isActive;
+  }
+
+  public void setIsActive(boolean isActive) {
+    this.isActive = isActive;
+  }
 }
